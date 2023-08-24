@@ -15,8 +15,6 @@ const port = 3000;
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected bd');
 });
 
 app.use(bodyParser.json());
@@ -36,6 +34,4 @@ app.use('*', (req, res) => {
   res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+app.listen(port);
