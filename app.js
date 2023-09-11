@@ -5,10 +5,13 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
+const errorHandler = require('./middlewares/errorHandler');
 
-const { NOT_FOUND } = require('./errors/errors');
+const NotFound = require('./errors/NotFound');
 
 const { PORT = 3000 } = process.env;
 
@@ -19,19 +22,19 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64e3bf68e15294d9bf2a0d60',
-  };
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-  next();
+app.use('*', () => {
+  throw new NotFound('Страница не найдена');
+  // res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
 });
+
+app.use(auth);
 
 app.use(usersRouter);
 app.use(cardRouter);
 
-app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
-});
+app.use(errorHandler);
 
 app.listen(PORT);
