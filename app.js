@@ -25,15 +25,14 @@ app.use(bodyParser.json());
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use('*', () => {
-  throw new NotFound('Страница не найдена');
-  // res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
-});
-
 app.use(auth);
 
 app.use(usersRouter);
 app.use(cardRouter);
+
+app.use('*', (req, res, next) => {
+  next(new NotFound('Страница по указанному маршруту не найдена'));
+});
 
 app.use(errorHandler);
 
