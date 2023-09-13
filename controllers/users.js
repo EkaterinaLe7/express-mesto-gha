@@ -100,7 +100,6 @@ const updateUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         return next(new NotFound('Пользователь не найден'));
-        // throw new NotFound('Пользователь не найден');
       }
       return res.status(200).send(user);
     })
