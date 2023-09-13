@@ -21,9 +21,27 @@ const getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        return next(new NotFound('Пользователь не найден'));
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
+};
+
+const getCurrentUser = (req, res, next) => {
+  const userId = req.user._id;
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFound('Пользователь не найден'));
+      }
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -47,7 +65,7 @@ const createUser = (req, res, next) => {
     return next(new BadRequest('Email и пароль должны быть заполнены'));
   }
 
-  bcrypt.hash(password, SALT_ROUNDS)
+  return bcrypt.hash(password, SALT_ROUNDS)
     .then((hash) => User.create({
       name,
       about,
@@ -81,9 +99,10 @@ const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        return next(new NotFound('Пользователь не найден'));
+        // throw new NotFound('Пользователь не найден');
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -101,9 +120,10 @@ const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        return next(new NotFound('Пользователь не найден'));
+        // throw new NotFound('Пользователь не найден');
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -140,4 +160,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getCurrentUser,
 };

@@ -1,7 +1,6 @@
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
-const ConflictError = require('../errors/ConflictError');
 const Forbidden = require('../errors/Forbidden');
 
 const getCards = (req, res, next) => {
@@ -10,7 +9,6 @@ const getCards = (req, res, next) => {
       res.status(200).send(cards);
     })
     .catch(next);
-  // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 const createCard = (req, res, next) => {
@@ -23,10 +21,8 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при создании карточки'));
-        // res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
       } else {
         next(err);
-        // res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -45,7 +41,7 @@ const deleteCard = (req, res, next) => {
         return next(new Forbidden('Нельзя удалить чужую карточку'));
       }
       return Card.findByIdAndRemove(cardId)
-        .then(() => res.send({ message: 'Пост удалён' }));
+        .then(() => res.send({ message: 'Карточка удалёна' }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -66,7 +62,7 @@ const likeCard = (req, res, next) => {
       if (!card) {
         return next(new NotFound('Карточка с указанным _id не найдена'));
       }
-      res.status(200).send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -87,7 +83,7 @@ const dislikeCard = (req, res, next) => {
       if (!card) {
         return next(new NotFound('Карточка с указанным _id не найдена'));
       }
-      res.status(200).send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
